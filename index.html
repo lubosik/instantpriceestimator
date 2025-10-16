@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMP Price Calculator (Canada) — Instant Quote | Stella's Ink Chamber</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;500;600;700&family=Libre+Baskerville:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /**
+     * Instant Quote Calculator Styles
+     * Uses Stella's Ink Chamber brand tokens
+     * Mobile-first responsive design
+     */
+
+    /* ==================== CSS VARIABLES (Brand Tokens) ==================== */
+
+    :root {
+      /* Colors */
+      --color-primary: #293919;
+      --color-primary-light: #3d5226;
+      --color-primary-dark: #1a2410;
+      --color-white: #ffffff;
+      --color-black: #000000;
+      --color-gray-50: #f9fafb;
+      --color-gray-100: #f3f4f6;
+      --color-gray-200: #e5e7eb;
+      --color-gray-300: #d1d5db;
+      --color-gray-600: #4b5563;
+      --color-gray-800: #1f2937;
+      --color-gray-900: #111827;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-error: #ef4444;
+      --color-accent: #3d5226;
+
+      /* Typography */
+      --font-body: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-heading: 'Libre Baskerville', Georgia, serif;
+      --font-weight-normal: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --font-size-xs: 0.75rem;
+      --font-size-sm: 0.875rem;
+      --font-size-base: 1rem;
+      --font-size-lg: 1.125rem;
+      --font-size-xl: 1.25rem;
+      --font-size-2xl: 1.5rem;
+      --font-size-3xl: 1.875rem;
+      --font-size-4xl: 2.25rem;
+
+      /* Spacing */
+      --spacing-xs: 0.25rem;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 1rem;
+      --spacing-lg: 1.5rem;
+      --spacing-xl: 2rem;
+      --spacing-2xl: 3rem;
+      --spacing-3xl: 4rem;
+
+      /* Border Radius */
+      --radius-sm: 0.25rem;
+      --radius-md: 0.375rem;
+      --radius-lg: 0.5rem;
+      --radius-xl: 0.75rem;
+      --radius-pill: 9999px;
+
+      /* Shadows */
+      --shadow-card: 0 4px 12px rgba(41, 57, 25, 0.15);
+      --shadow-elevated: 0 4px 12px rgba(41, 57, 25, 0.25);
+      --shadow-focus: 0 0 0 3px rgba(61, 82, 38, 0.3);
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+      --transition-base: 250ms ease-in-out;
+
+      /* Z-index */
+      --z-base: 1;
+      --z-sticky: 10;
+      --z-popup: 100;
+      --z-overlay: 99;
+    }
+
+    /* ==================== CONTAINER ==================== */
+
+    .instant-quote {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: var(--spacing-xl) var(--spacing-md);
+      font-family: var(--font-body);
+      color: var(--color-gray-900);
+    }
+
+    .instant-quote--inline {
+      margin: var(--spacing-2xl) auto;
+    }
+
+    .instant-quote--popup {
+      padding: 0;
+    }
+
+    .instant-quote__content {
+      background: var(--color-white);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      box-shadow: var(--shadow-card);
+      margin-bottom: calc(80px + var(--spacing-xl));
+    }
+
+    .instant-quote__error {
+      margin-top: var(--spacing-lg);
+      padding: var(--spacing-md);
+      background: #fef2f2;
+      border: 1px solid var(--color-error);
+      border-radius: var(--radius-md);
+      color: #991b1b;
+      font-size: var(--font-size-sm);
+    }
+
+    /* ==================== PROGRESS BAR ==================== */
+
+    .progress-bar {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .progress-bar__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .progress-bar__step {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-600);
+    }
+
+    .progress-bar__label {
+      font-size: var(--font-size-sm);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .progress-bar__track {
+      height: 6px;
+      background: var(--color-gray-200);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .progress-bar__fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+      border-radius: var(--radius-pill);
+      transition: width var(--transition-base);
+    }
+
+    .progress-bar__dots {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--spacing-xs);
+    }
+
+    .progress-bar__dot {
+      flex: 1;
+      height: 4px;
+      background: var(--color-gray-200);
+      border-radius: var(--radius-pill);
+      transition: background var(--transition-fast);
+    }
+
+    .progress-bar__dot.completed,
+    .progress-bar__dot.active {
+      background: var(--color-primary);
+    }
+
+    /* ==================== CALCULATOR STEPS ==================== */
+
+    .calculator-step {
+      animation: fadeIn var(--transition-base);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .step__title {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      margin: 0 0 var(--spacing-sm) 0;
+      line-height: 1.2;
+    }
+
+    .step__subtitle {
+      font-size: var(--font-size-lg);
+      color: var(--color-gray-600);
+      margin: 0 0 var(--spacing-xl) 0;
+      line-height: 1.5;
+    }
+
+    .step__section {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .step__section:last-child {
+      margin-bottom: 0;
+    }
+
+    .step__section-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-900);
+      margin: 0 0 var(--spacing-md) 0;
+    }
+
+    .step__help-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-600);
+      margin: var(--spacing-md) 0 0 0;
+      line-height: 1.5;
+    }
+
+    .step__options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .step__options--grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-md);
+    }
+
+    .step__options--grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-md);
+    }
+
+    /* Mobile: Stack grids */
+    @media (max-width: 480px) {
+      .step__options--grid-2,
+      .step__options--grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ==================== OPTION CARD ==================== */
+
+    .option-card {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      background: var(--color-white);
+      border: 2px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-align: left;
+      width: 100%;
+      position: relative;
+      min-height: 48px;
+    }
+
+    .option-card:hover:not(.disabled) {
+      border-color: var(--color-primary-light);
+      background: var(--color-gray-50);
+    }
+
+    .option-card:focus-visible {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-focus);
+    }
+
+    .option-card.selected {
+      border-color: var(--color-primary);
+      background: var(--color-gray-50);
+      box-shadow: var(--shadow-card);
+    }
+
+    .option-card.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .option-card__icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-primary);
+    }
+
+    .option-card__icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .option-card__content {
+      flex: 1;
+    }
+
+    .option-card__label {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .option-card__description {
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-600);
+      line-height: 1.4;
+    }
+
+    .option-card__checkmark {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--color-primary);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .option-card.selected .option-card__checkmark {
+      opacity: 1;
+    }
+
+    /* ==================== FORM INPUTS (Step 7) ==================== */
+
+    .step__form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-label {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .form-label .required {
+      color: var(--color-error);
+    }
+
+    .form-input {
+      padding: 0.875rem 1rem;
+      font-size: var(--font-size-base);
+      font-family: var(--font-body);
+      border: 2px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      transition: all var(--transition-fast);
+      background: var(--color-white);
+      color: var(--color-gray-900);
+    }
+
+    .form-input:hover {
+      border-color: var(--color-gray-300);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-focus);
+    }
+
+    .form-input::placeholder {
+      color: var(--color-gray-400);
+    }
+
+    .form-help {
+      font-size: var(--font-size-xs);
+      color: var(--color-gray-600);
+      margin-top: var(--spacing-xs);
+    }
+
+    .form-help--small {
+      font-size: 0.6875rem;
+    }
+
+    .form-group--checkbox {
+      flex-direction: row;
+      align-items: flex-start;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-sm);
+      cursor: pointer;
+      font-size: var(--font-size-sm);
+      line-height: 1.5;
+    }
+
+    .checkbox-input {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      border: 2px solid var(--color-gray-300);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .checkbox-input:hover {
+      border-color: var(--color-primary);
+    }
+
+    .checkbox-input:focus {
+      outline: none;
+      box-shadow: var(--shadow-focus);
+    }
+
+    .checkbox-input:checked {
+      background: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    .checkbox-text {
+      color: var(--color-gray-700);
+    }
+
+    /* ==================== GIFT CARD BANNER ==================== */
+
+    .step__gift-card-banner,
+    .result-panel__gift-card {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-lg);
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+      border-radius: var(--radius-md);
+      margin-top: var(--spacing-xl);
+    }
+
+    .gift-card-icon {
+      font-size: var(--font-size-3xl);
+      flex-shrink: 0;
+    }
+
+    .gift-card-content {
+      flex: 1;
+    }
+
+    .gift-card-title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-white);
+      margin: 0 0 var(--spacing-xs) 0;
+    }
+
+    .gift-card-text {
+      font-size: var(--font-size-sm);
+      color: var(--color-white);
+      opacity: 0.95;
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    /* ==================== RESULT PANEL ==================== */
+
+    .result-panel {
+      animation: fadeIn var(--transition-base);
+    }
+
+    .result-panel__success-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .result-panel__title {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      text-align: center;
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .result-panel__subtitle {
+      font-size: var(--font-size-lg);
+      color: var(--color-gray-600);
+      text-align: center;
+      margin: 0 0 var(--spacing-xl) 0;
+    }
+
+    .result-panel__estimate-card {
+      background: var(--color-gray-50);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-2xl) var(--spacing-xl);
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .estimate-card__range {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .estimate-card__currency {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-gray-600);
+    }
+
+    .estimate-card__low,
+    .estimate-card__high {
+      font-family: var(--font-heading);
+      font-size: var(--font-size-4xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+    }
+
+    .estimate-card__separator {
+      font-size: var(--font-size-2xl);
+      color: var(--color-gray-400);
+    }
+
+    .estimate-card__mid {
+      font-size: var(--font-size-base);
+      color: var(--color-gray-600);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .estimate-card__sessions {
+      font-size: var(--font-size-base);
+      color: var(--color-gray-700);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .result-panel__factors {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .factors__title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-900);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .factors__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .factors__item {
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--color-gray-50);
+      border-left: 3px solid var(--color-primary);
+      margin-bottom: var(--spacing-xs);
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-700);
+    }
+
+    .result-panel__cta {
+      text-align: center;
+      margin: var(--spacing-xl) 0;
+    }
+
+    .cta__subtext {
+      margin: var(--spacing-md) 0 0 0;
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-600);
+    }
+
+    .result-panel__disclaimer {
+      padding: var(--spacing-md);
+      background: var(--color-gray-50);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-xs);
+      color: var(--color-gray-600);
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .result-panel__disclaimer p {
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .result-panel__next-steps {
+      padding: var(--spacing-lg);
+      background: var(--color-gray-50);
+      border-radius: var(--radius-md);
+    }
+
+    .next-steps__title {
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-900);
+      margin: 0 0 var(--spacing-md) 0;
+    }
+
+    .next-steps__list {
+      margin: 0;
+      padding-left: var(--spacing-xl);
+    }
+
+    .next-steps__list li {
+      font-size: var(--font-size-sm);
+      color: var(--color-gray-700);
+      margin-bottom: var(--spacing-sm);
+      line-height: 1.5;
+    }
+
+    /* ==================== BUTTONS ==================== */
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: 0.875rem 1.75rem;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      font-family: var(--font-body);
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+      white-space: nowrap;
+      min-height: 48px;
+    }
+
+    .btn--primary {
+      background: var(--color-primary);
+      color: var(--color-white);
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background: var(--color-primary-light);
+    }
+
+    .btn--primary:focus-visible {
+      outline: none;
+      box-shadow: var(--shadow-focus);
+    }
+
+    .btn--primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn--secondary {
+      background: transparent;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    .btn--secondary:hover:not(:disabled) {
+      background: var(--color-gray-50);
+    }
+
+    .btn--secondary:focus-visible {
+      outline: none;
+      box-shadow: var(--shadow-focus);
+    }
+
+    .btn--large {
+      padding: 1rem 2rem;
+      font-size: var(--font-size-lg);
+    }
+
+    .btn__spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--color-white);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ==================== STICKY CTA ==================== */
+
+    .sticky-cta {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--color-white);
+      border-top: 1px solid var(--color-gray-200);
+      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+      padding: var(--spacing-md);
+      z-index: var(--z-sticky);
+    }
+
+    .sticky-cta__container {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      gap: var(--spacing-md);
+      justify-content: space-between;
+    }
+
+    .sticky-cta .btn--secondary {
+      flex: 0 0 auto;
+    }
+
+    .sticky-cta .btn--primary {
+      flex: 1;
+    }
+
+    /* ==================== RESPONSIVE BREAKPOINTS ==================== */
+
+    /* Tablet (768px+) */
+    @media (min-width: 768px) {
+      .instant-quote {
+        padding: var(--spacing-2xl) var(--spacing-xl);
+      }
+
+      .instant-quote__content {
+        padding: var(--spacing-2xl);
+      }
+
+      .step__title {
+        font-size: var(--font-size-4xl);
+      }
+
+      .step__options--grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .step__options--grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Desktop (1024px+) */
+    @media (min-width: 1024px) {
+      .instant-quote {
+        max-width: 700px;
+      }
+    }
+
+    /* ==================== ACCESSIBILITY ==================== */
+
+    /* Skip to content link */
+    .skip-to-content {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--color-primary);
+      color: var(--color-white);
+      padding: var(--spacing-sm) var(--spacing-md);
+      text-decoration: none;
+      z-index: 999;
+    }
+
+    .skip-to-content:focus {
+      top: 0;
+    }
+
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      .option-card {
+        border-width: 3px;
+      }
+
+      .form-input {
+        border-width: 3px;
+      }
+    }
+
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ==================== PRINT STYLES ==================== */
+
+    @media print {
+      .sticky-cta,
+      .smart-popup__close,
+      .progress-bar {
+        display: none !important;
+      }
+
+      .result-panel {
+        page-break-inside: avoid;
+      }
+
+      .result-panel__estimate-card {
+        border: 2px solid var(--color-primary);
+      }
+
+      .btn {
+        border: 2px solid var(--color-primary);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="instant-quote">
+    <div class="instant-quote__content">
+      <!-- Progress Bar -->
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-bar__header">
+          <span class="progress-bar__step" id="progressText">Step 1 of 7</span>
+          <span class="progress-bar__label" id="progressLabel">About You</span>
+        </div>
+        <div class="progress-bar__track">
+          <div class="progress-bar__fill" id="progressFill" style="width: 14.3%"></div>
+        </div>
+      </div>
+
+      <!-- Step Container -->
+      <div id="stepContainer"></div>
+
+      <!-- Error Display -->
+      <div id="errorDisplay" class="instant-quote__error" style="display: none;"></div>
+    </div>
+
+    <!-- Sticky CTA -->
+    <div class="sticky-cta" id="stickyCTA">
+      <div class="sticky-cta__container">
+        <button type="button" class="btn btn--secondary" id="backBtn" disabled>Back</button>
+        <button type="button" class="btn btn--primary" id="nextBtn" disabled>
+          <span id="nextBtnText">Next: Your Hair Situation</span>
+          <span class="btn__spinner" id="btnSpinner" style="display: none;"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * SMP Pricing Calculator Engine (Standalone JavaScript)
+     */
+
+    const pricingEngine = {
+      base: {
+        hairline_temples: 850,
+        crown: 850,
+        full_top: 850,
+        patchy_areas: 850,
+        scars_only: 225,
+        full_scalp: 850
+      },
+      norwood_multiplier: {
+        "II": 0.9,
+        "III": 1.0,
+        "III-V": 1.05,
+        "IV": 1.15,
+        "IV-V": 1.25,
+        "V": 1.3,
+        "V-VI": 1.4,
+        "VI": 1.45,
+        "VII": 1.6
+      },
+      finish_adjustment: {
+        natural: 0.0,
+        barbershop_crisp: 0.05,
+        density_only: -0.1,
+        need_guidance: 0.0
+      },
+      add_ons: {
+        scar_camouflage: 400,
+        womens_density_focus: 200
+      },
+      session_rules: {
+        base_sessions: 3,
+        norwood_bonus: {
+          "VI": 1,
+          "VII": 1
+        },
+        coverage_bonus: {
+          full_scalp: 1
+        },
+        scar_addon_sessions: 1
+      },
+      range_spread: {
+        hairline_temples: 0.176,
+        crown: 0.176,
+        full_top: 0.176,
+        patchy_areas: 0.176,
+        scars_only: 0.333,
+        full_scalp: 0.176
+      },
+      min_price: 150,
+      max_price: 1000,
+      currency: "CAD"
+    };
+
+    function calculatePrice(inputs) {
+      let price = pricingEngine.base[inputs.coverage_area];
+      const factors = [];
+
+      if (inputs.norwood && pricingEngine.norwood_multiplier[inputs.norwood]) {
+        const multiplier = pricingEngine.norwood_multiplier[inputs.norwood];
+        price *= multiplier;
+        const pct = ((multiplier - 1) * 100).toFixed(0);
+        factors.push('Norwood stage ' + inputs.norwood + ' (' + pct + '% adjustment)');
+      }
+
+      const finishAdj = pricingEngine.finish_adjustment[inputs.finish];
+      price *= (1 + finishAdj);
+      if (finishAdj !== 0) {
+        const pct = (finishAdj * 100).toFixed(0);
+        const sign = finishAdj > 0 ? '+' : '';
+        const finishLabel = inputs.finish.replace(/_/g, ' ');
+        factors.push(finishLabel + ' finish (' + sign + pct + '%)');
+      }
+
+      if (inputs.scar_addon) {
+        price += pricingEngine.add_ons.scar_camouflage;
+        factors.push('Scar camouflage (+' + pricingEngine.add_ons.scar_camouflage + ')');
+      }
+
+      if (inputs.womens_density_addon) {
+        price += pricingEngine.add_ons.womens_density_focus;
+        factors.push("Women's density focus (+" + pricingEngine.add_ons.womens_density_focus + ')');
+      }
+
+      let sessionCount = pricingEngine.session_rules.base_sessions;
+
+      if (inputs.norwood && pricingEngine.session_rules.norwood_bonus[inputs.norwood]) {
+        sessionCount += pricingEngine.session_rules.norwood_bonus[inputs.norwood];
+      }
+
+      if (pricingEngine.session_rules.coverage_bonus[inputs.coverage_area]) {
+        sessionCount += pricingEngine.session_rules.coverage_bonus[inputs.coverage_area];
+      }
+
+      if (inputs.scar_addon) {
+        sessionCount += pricingEngine.session_rules.scar_addon_sessions;
+      }
+
+      const spread = typeof pricingEngine.range_spread === 'object' 
+        ? pricingEngine.range_spread[inputs.coverage_area] 
+        : pricingEngine.range_spread;
+      let low = Math.round(price * (1 - spread));
+      let high = Math.round(price * (1 + spread));
+      const mid = Math.round(price);
+
+      low = Math.max(low, pricingEngine.min_price);
+      high = Math.min(high, pricingEngine.max_price);
+
+      const plural = sessionCount > 1 ? 's' : '';
+      const sessionDescription = sessionCount + ' session' + plural + ' recommended (spaced 2-4 weeks apart)';
+
+      return {
+        low: low,
+        high: high,
+        mid: mid,
+        currency: pricingEngine.currency,
+        sessions: {
+          count: sessionCount,
+          description: sessionDescription
+        },
+        factors: factors.length > 0 ? factors : ['Standard coverage area'],
+        disclaimer: 'This is an estimate only. Final pricing will be determined during your free consultation based on your specific needs and goals.'
+      };
+    }
+
+    window.calculateSMPPrice = calculatePrice;
+
+    const state = {
+      currentStep: 1,
+      answers: {},
+      estimate: null
+    };
+
+    const STEP_LABELS = [
+      'About You',
+      'Hair Situation',
+      'Coverage Area',
+      'Finish Preference',
+      'Timing',
+      'Add-ons',
+      'Contact Info'
+    ];
+
+    function renderStep1() {
+      return '<div class="calculator-step">' +
+        '<h2 class="step__title">Let' + String.fromCharCode(39) + 's start with a few basics</h2>' +
+        '<p class="step__subtitle">This helps us provide the most accurate estimate for you.</p>' +
+        '<div class="step__section">' +
+        '<h3 class="step__section-title">Gender</h3>' +
+        '<div class="step__options step__options--grid-2">' +
+        renderOptionCard('gender', 'male', 'Male') +
+        renderOptionCard('gender', 'female', 'Female') +
+        renderOptionCard('gender', 'non-binary', 'Non-binary') +
+        renderOptionCard('gender', 'prefer-not-to-say', 'Prefer not to say') +
+        '</div></div>' +
+        '<div class="step__section">' +
+        '<h3 class="step__section-title">Age Range</h3>' +
+        '<div class="step__options step__options--grid-2">' +
+        renderOptionCard('age_band', 'under-25', 'Under 25') +
+        renderOptionCard('age_band', '25-34', '25-34') +
+        renderOptionCard('age_band', '35-44', '35-44') +
+        renderOptionCard('age_band', '45-54', '45-54') +
+        renderOptionCard('age_band', '55-plus', '55+') +
+        '</div></div></div>';
+    }
+
+    function renderStep2() {
+      return '<div class="calculator-step">' +
+        '<h2 class="step__title">What' + String.fromCharCode(39) + 's your main hair concern?</h2>' +
+        '<p class="step__subtitle">This helps us understand what you' + String.fromCharCode(39) + 're looking to achieve.</p>' +
+        '<div class="step__section"><div class="step__options">' +
+        renderOptionCard('concern', 'receding', 'Receding hairline', 'Temples or front hairline moving back') +
+        renderOptionCard('concern', 'thinning', 'Thinning/Diffuse', 'Overall density loss across scalp') +
+        renderOptionCard('concern', 'alopecia', 'Alopecia', 'Patchy or complete hair loss') +
+        renderOptionCard('concern', 'scars', 'Scar camouflage', 'Cover surgical or injury scars') +
+        renderOptionCard('concern', 'full-shave', 'Full shaved look', 'Buzzed/bald aesthetic') +
+        renderOptionCard('concern', 'not-sure', 'Not sure', 'Need guidance on what' + String.fromCharCode(39) + 's best') +
+        '</div></div></div>';
+    }
+
+    function renderStep3() {
+      return '<div class="calculator-step">' +
+        '<h2 class="step__title">Which area needs coverage?</h2>' +
+        '<p class="step__subtitle">Select the area that best matches your needs.</p>' +
+        '<div class="step__section"><div class="step__options">' +
+        renderOptionCard('coverage_area', 'hairline_temples', 'Hairline/Temples only', 'Front hairline and temple areas') +
+        renderOptionCard('coverage_area', 'crown', 'Crown area', 'Top/back of head') +
+        renderOptionCard('coverage_area', 'full_top', 'Full top of head', 'Hairline through crown') +
+        renderOptionCard('coverage_area', 'patchy_areas', 'Patchy areas', 'Multiple small areas') +
+        renderOptionCard('coverage_area', 'scars_only', 'Scars only', 'Scar camouflage work') +
+        renderOptionCard('coverage_area', 'full_scalp', 'Full scalp', 'Complete head coverage') +
+        '</div></div></div>';
+    }
+
+    function renderStep4() {
+      return '<div class="calculator-step">' +
+        '<h2 class="step__title">What finish do you prefer?</h2>' +
+        '<p class="step__subtitle">This affects the style and technique we' + String.fromCharCode(39) + 'll use.</p>' +
+        '<div class="step__options">' +
+        renderOptionCard('finish', 'natural', 'Natural soft hairline', 'Subtle, organic appearance') +
+        renderOptionCard('finish', 'barbershop_crisp', 'Defined crisp look', 'Sharp, clean edges') +
+        renderOptionCard('finish', 'density_only', 'Density enhancement only', 'Fill in existing hair') +
+        renderOptionCard('finish', 'need_guidance', 'Need guidance', 'Not sure what' + String.fromCharCode(39) + 's best for me') +
+        '</div></div>';
+    }
+
+    function renderStep5() {
+      return '<div class="calculator-step">' +
+        '<h2 class="step__title">When are you looking to start?</h2>' +
+        '<p class="step__subtitle">This helps us plan your consultation timeline.</p>' +
+        '<div class="step__options">' +
+        renderOptionCard('timing', 'asap', 'As soon as possible', 'Ready to book within days') +
+        renderOptionCard('timing', '2-4-weeks', 'Within 2-4 weeks', 'Planning ahead') +
+        renderOptionCard('timing', '1-3-months', '1-3 months', 'Researching and comparing') +
+        renderOptionCard('timing', 'researching', 'Just researching', 'Gathering information') +
+        '</div></div>';
+    }
+
+    function renderStep6() {
+      return '<div class="calculator-step">' +
+        '<h2 class="step__title">Any additional services?</h2>' +
+        '<p class="step__subtitle">These are optional add-ons (select all that apply).</p>' +
+        '<div class="step__options">' +
+        renderOptionCard('scar_addon', true, 'Scar camouflage work', 'Additional scar coverage beyond main area', 'checkbox') +
+        renderOptionCard('womens_density_addon', true, 'Women' + String.fromCharCode(39) + 's density focus', 'Enhanced density work for women', 'checkbox') +
+        renderOptionCard('skip_addons', true, 'No add-ons needed', 'Continue without extras', 'checkbox') +
+        '</div></div>';
+    }
+
+    function renderStep7() {
+      var nameVal = state.answers.name || '';
+      var emailVal = state.answers.email || '';
+      var phoneVal = state.answers.phone || '';
+      var consentChecked = state.answers.consent ? 'checked' : '';
+      
+      return '<div class="calculator-step">' +
+        '<h2 class="step__title">Where should we send your estimate?</h2>' +
+        '<p class="step__subtitle">We' + String.fromCharCode(39) + 'll email you a detailed breakdown plus a $100 consultation gift card.</p>' +
+        '<form class="step__form" id="contactForm" onsubmit="return false;">' +
+        '<div class="form-group">' +
+        '<label class="form-label" for="name">Full Name <span class="required">*</span></label>' +
+        '<input type="text" id="name" class="form-input" placeholder="John Smith" value="' + nameVal + '" required />' +
+        '</div>' +
+        '<div class="form-group">' +
+        '<label class="form-label" for="email">Email <span class="required">*</span></label>' +
+        '<input type="email" id="email" class="form-input" placeholder="john@example.com" value="' + emailVal + '" required />' +
+        '</div>' +
+        '<div class="form-group">' +
+        '<label class="form-label" for="phone">Phone <span class="required">*</span></label>' +
+        '<input type="tel" id="phone" class="form-input" placeholder="(555) 123-4567" value="' + phoneVal + '" required />' +
+        '<span class="form-help form-help--small">We' + String.fromCharCode(39) + 'll only use this to schedule your free consultation.</span>' +
+        '</div>' +
+        '<div class="form-group form-group--checkbox">' +
+        '<label class="checkbox-label">' +
+        '<input type="checkbox" id="consent" class="checkbox-input" ' + consentChecked + ' required />' +
+        '<span class="checkbox-text">I consent to receive my estimate and consultation details via email and SMS. I can unsubscribe anytime. <span class="required">*</span></span>' +
+        '</label></div></form>' +
+        '<div class="step__gift-card-banner">' +
+        '<div class="gift-card-icon">🎁</div>' +
+        '<div class="gift-card-content">' +
+        '<h4 class="gift-card-title">$100 Consultation Gift Card</h4>' +
+        '<p class="gift-card-text">Book a free consultation within 30 days and receive $100 off your SMP treatment.</p>' +
+        '</div></div></div>';
+    }
+
+    function renderResults() {
+      if (!state.estimate) return '';
+
+      var low = state.estimate.low;
+      var high = state.estimate.high;
+      var mid = state.estimate.mid;
+      var currency = state.estimate.currency;
+      var sessions = state.estimate.sessions;
+      var factors = state.estimate.factors;
+      var disclaimer = state.estimate.disclaimer;
+
+      var factorsList = '';
+      for (var i = 0; i < factors.length; i++) {
+        factorsList += '<li class="factors__item">' + factors[i] + '</li>';
+      }
+
+      return '<div class="result-panel">' +
+        '<div class="result-panel__success-icon">' +
+        '<svg width="64" height="64" viewBox="0 0 64 64" fill="#10b981">' +
+        '<circle cx="32" cy="32" r="32" fill="#d1fae5"/>' +
+        '<path d="M44.8 22.4L28 39.2l-8.8-8.8-3.2 3.2L28 45.6l20-20z" fill="#10b981"/>' +
+        '</svg></div>' +
+        '<h2 class="result-panel__title">Your Personalized Estimate</h2>' +
+        '<p class="result-panel__subtitle">Based on your selections, here' + String.fromCharCode(39) + 's your estimated investment range.</p>' +
+        '<div class="result-panel__estimate-card">' +
+        '<div class="estimate-card__range">' +
+        '<span class="estimate-card__currency">' + currency + '</span>' +
+        '<span class="estimate-card__low">' + low.toLocaleString() + '</span>' +
+        '<span class="estimate-card__separator">-</span>' +
+        '<span class="estimate-card__high">' + high.toLocaleString() + '</span>' +
+        '</div>' +
+        '<div class="estimate-card__mid">Most likely: ' + currency + ' ' + mid.toLocaleString() + '</div>' +
+        '<div class="estimate-card__sessions">' + sessions.description + '</div>' +
+        '</div>' +
+        '<div class="result-panel__factors">' +
+        '<h3 class="factors__title">Your estimate includes:</h3>' +
+        '<ul class="factors__list">' + factorsList + '</ul>' +
+        '</div>' +
+        '<div class="result-panel__gift-card">' +
+        '<div class="gift-card-icon">🎁</div>' +
+        '<div class="gift-card-content">' +
+        '<h4 class="gift-card-title">$100 Gift Card Reserved!</h4>' +
+        '<p class="gift-card-text">We' + String.fromCharCode(39) + 've sent your detailed estimate and $100 consultation gift card to your email. Book within 30 days to redeem.</p>' +
+        '</div></div>' +
+        '<div class="result-panel__cta">' +
+        '<a href="https://calendly.com/stellasinkchamber/30min" class="btn btn--primary btn--large" target="_blank" rel="noopener">Book Free Consultation</a>' +
+        '<p class="cta__subtext">Or call us at (780) 932-9541</p>' +
+        '</div>' +
+        '<div class="result-panel__disclaimer"><p>' + disclaimer + '</p></div>' +
+        '<div class="result-panel__next-steps">' +
+        '<h3 class="next-steps__title">What happens next?</h3>' +
+        '<ol class="next-steps__list">' +
+        '<li>Check your email for your full estimate breakdown</li>' +
+        '<li>Book your free, no-pressure consultation</li>' +
+        '<li>We' + String.fromCharCode(39) + 'll assess your scalp and finalize your custom treatment plan</li>' +
+        '<li>Schedule your first session at a time that works for you</li>' +
+        '</ol></div></div>';
+    }
+
+    function renderOptionCard(field, value, label, description, type) {
+      description = description || '';
+      type = type || 'radio';
+      
+      var isSelected = type === 'checkbox' 
+        ? state.answers[field] === true
+        : state.answers[field] === value;
+      
+      var selectedClass = isSelected ? ' selected' : '';
+      var checkmark = isSelected ? '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/></svg>' : '';
+      var descHtml = description ? '<div class="option-card__description">' + description + '</div>' : '';
+
+      return '<button type="button" class="option-card' + selectedClass + '" ' +
+        'onclick="selectOption(' + String.fromCharCode(39) + field + String.fromCharCode(39) + ', ' + String.fromCharCode(39) + value + String.fromCharCode(39) + ', ' + String.fromCharCode(39) + type + String.fromCharCode(39) + ')" ' +
+        'aria-pressed="' + isSelected + '">' +
+        '<div class="option-card__content">' +
+        '<div class="option-card__label">' + label + '</div>' +
+        descHtml +
+        '</div>' +
+        '<div class="option-card__checkmark" aria-hidden="true">' + checkmark + '</div>' +
+        '</button>';
+    }
+
+    function selectOption(field, value, type) {
+      if (type === 'checkbox') {
+        if (field === 'skip_addons') {
+          state.answers.scar_addon = false;
+          state.answers.womens_density_addon = false;
+        } else {
+          state.answers.skip_addons = false;
+          state.answers[field] = !state.answers[field];
+        }
+      } else {
+        state.answers[field] = value;
+      }
+      render();
+      updateNextButton();
+    }
+
+    function updateNextButton() {
+      var nextBtn = document.getElementById('nextBtn');
+      var nextBtnText = document.getElementById('nextBtnText');
+      
+      var canProceed = false;
+
+      switch (state.currentStep) {
+        case 1:
+          canProceed = state.answers.gender && state.answers.age_band;
+          nextBtnText.textContent = 'Next: Your Hair Situation';
+          break;
+        case 2:
+          canProceed = !!state.answers.concern;
+          nextBtnText.textContent = 'Next: Coverage Area';
+          break;
+        case 3:
+          canProceed = !!state.answers.coverage_area;
+          nextBtnText.textContent = 'Next: Finish Preference';
+          break;
+        case 4:
+          canProceed = !!state.answers.finish;
+          nextBtnText.textContent = 'Next: Timing';
+          break;
+        case 5:
+          canProceed = !!state.answers.timing;
+          nextBtnText.textContent = 'Next: Add-ons';
+          break;
+        case 6:
+          canProceed = true;
+          nextBtnText.textContent = 'Next: Contact Info';
+          break;
+        case 7:
+          var form = document.getElementById('contactForm');
+          canProceed = form && form.checkValidity();
+          nextBtnText.textContent = 'See My Estimate';
+          break;
+      }
+
+      nextBtn.disabled = !canProceed;
+    }
+
+    function updateProgress() {
+      var progressText = document.getElementById('progressText');
+      var progressLabel = document.getElementById('progressLabel');
+      var progressFill = document.getElementById('progressFill');
+
+      if (state.currentStep <= 7) {
+        progressText.textContent = 'Step ' + state.currentStep + ' of 7';
+        progressLabel.textContent = STEP_LABELS[state.currentStep - 1];
+        var percentage = (state.currentStep / 7) * 100;
+        progressFill.style.width = percentage + '%';
+      }
+    }
+
+    function render() {
+      var container = document.getElementById('stepContainer');
+      var progressBar = document.getElementById('progressBar');
+      var stickyCTA = document.getElementById('stickyCTA');
+
+      if (state.currentStep === 8) {
+        progressBar.style.display = 'none';
+        stickyCTA.style.display = 'none';
+        container.innerHTML = renderResults();
+      } else {
+        progressBar.style.display = 'block';
+        stickyCTA.style.display = 'block';
+
+        switch (state.currentStep) {
+          case 1: container.innerHTML = renderStep1(); break;
+          case 2: container.innerHTML = renderStep2(); break;
+          case 3: container.innerHTML = renderStep3(); break;
+          case 4: container.innerHTML = renderStep4(); break;
+          case 5: container.innerHTML = renderStep5(); break;
+          case 6: container.innerHTML = renderStep6(); break;
+          case 7: container.innerHTML = renderStep7(); attachFormListeners(); break;
+        }
+      }
+
+      updateProgress();
+      updateNextButton();
+      updateBackButton();
+    }
+
+    function attachFormListeners() {
+      var form = document.getElementById('contactForm');
+      if (!form) return;
+
+      var inputs = form.querySelectorAll('input');
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].addEventListener('input', function(e) {
+          state.answers[e.target.id] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+          updateNextButton();
+        });
+      }
+    }
+
+    function updateBackButton() {
+      var backBtn = document.getElementById('backBtn');
+      backBtn.disabled = state.currentStep === 1;
+    }
+
+    function handleNext() {
+      if (state.currentStep === 7) {
+        var btnSpinner = document.getElementById('btnSpinner');
+        var nextBtnText = document.getElementById('nextBtnText');
+        
+        btnSpinner.style.display = 'inline-block';
+        nextBtnText.style.display = 'none';
+
+        try {
+          state.estimate = window.calculateSMPPrice(state.answers);
+          state.currentStep = 8;
+          render();
+        } catch (err) {
+          showError('Failed to calculate estimate. Please try again.');
+          console.error(err);
+        } finally {
+          btnSpinner.style.display = 'none';
+          nextBtnText.style.display = 'inline';
+        }
+      } else {
+        state.currentStep++;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function handleBack() {
+      if (state.currentStep > 1) {
+        state.currentStep--;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function showError(message) {
+      var errorDisplay = document.getElementById('errorDisplay');
+      errorDisplay.textContent = message;
+      errorDisplay.style.display = 'block';
+      setTimeout(function() { errorDisplay.style.display = 'none'; }, 5000);
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', handleNext);
+    document.getElementById('backBtn').addEventListener('click', handleBack);
+
+    render();
+  </script>
+</body>
+</html>
