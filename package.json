@@ -1,26 +1,12 @@
 {
   "name": "instant-price-estimator",
   "version": "1.0.0",
-  "description": "SMP Price Calculator for Stella's Ink Chamber - Instant Quote Tool",
+  "description": "SMP Price Calculator for Stella's Ink Chamber",
   "main": "index.html",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'Static site - no build needed'",
-    "start": "vercel dev"
+    "build": "echo 'Static site - no build needed'"
   },
-  "keywords": [
-    "smp",
-    "scalp-micropigmentation",
-    "pricing-calculator",
-    "hair-loss",
-    "edmonton",
-    "alberta"
-  ],
+  "keywords": ["smp", "pricing", "calculator"],
   "author": "Stella's Ink Chamber",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/lubosik/instantpriceestimator.git"
-  },
-  "homepage": "https://instantpriceestimator.vercel.app"
+  "license": "MIT"
 }
