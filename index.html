@@ -1384,5 +1384,36 @@
 
     render();
   </script>
+
+  <script>
+(function(){
+  // ---- Auto-resize the iframe in the parent ----
+  function sendHeight(){
+    var h = Math.max(
+      document.body.scrollHeight || 0,
+      document.documentElement.scrollHeight || 0
+    );
+    // Parent will strictly origin-check on its side
+    parent.postMessage({ type:'quiz:resize', height:h }, '*');
+  }
+
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+  if ('MutationObserver' in window){
+    new MutationObserver(sendHeight)
+      .observe(document.documentElement, { subtree:true, childList:true, attributes:true });
+  }
+
+  // ---- Completion hook ----
+  // Call this when the user finishes the quiz (from your final step handler).
+  function quizComplete(firstName, lastName, email, phone){
+    try { localStorage.setItem('smp_lead', JSON.stringify({firstName,lastName,email,phone,ts:Date.now()})); } catch(_){}
+    parent.postMessage({ type:'quiz:complete', firstName, lastName, email, phone }, '*');
+  }
+
+  // Expose to your app logic
+  window.quizComplete = quizComplete;
+})();
+</script>
 </body>
 </html>
