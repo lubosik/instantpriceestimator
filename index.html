@@ -835,8 +835,44 @@
       }
     }
   </style>
+
+<!-- SIC UTIL CSS START -->
+<style>
+/* Top utility bar */
+.sic-util{
+  position: sticky; top: 0; z-index: 9999;
+  background: #0f172a; border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.sic-util__inner{
+  max-width: 1100px; margin: 0 auto; padding: 10px 12px;
+  display:flex; gap:10px; justify-content:flex-end; align-items:center;
+}
+.sic-u-btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  padding:9px 14px; border-radius:10px; font:600 14px/1 system-ui;
+  border:1px solid #fff; text-decoration:none; white-space:nowrap;
+}
+.sic-u-btn--primary{ background:#fff; color:#0f172a }
+.sic-u-btn--ghost{ background:transparent; color:#fff; border-color:#fff }
+@media (max-width:640px){
+  .sic-util__inner{ padding:8px; gap:8px }
+  .sic-u-btn{ padding:8px 12px; font-size:13px }
+}
+</style>
+<!-- SIC UTIL CSS END -->
 </head>
 <body>
+<!-- SIC UTIL BAR START -->
+<!-- Sticky utility bar: back to site + book consultation -->
+<div class="sic-util">
+  <div class="sic-util__inner">
+    <a class="sic-u-btn sic-u-btn--ghost" id="sic-back" href="/pricing">Back to site</a>
+    <a class="sic-u-btn sic-u-btn--primary" id="sic-book" href="https://calendly.com/stellasinkchamber/30min" target="_blank" rel="noopener">
+      Book a consultation
+    </a>
+  </div>
+</div>
+<!-- SIC UTIL BAR END -->
   <div class="instant-quote">
     <div class="instant-quote__content">
       <!-- Progress Bar -->
@@ -1110,8 +1146,8 @@
       var consentChecked = state.answers.consent ? 'checked' : '';
       
       return '<div class="calculator-step">' +
-        '<h2 class="step__title">Where should we send your estimate?</h2>' +
-        '<p class="step__subtitle">We' + String.fromCharCode(39) + 'll email you a detailed breakdown plus a $100 consultation gift card.</p>' +
+        '<h2 class="step__title">Just a few details to see your estimate</h2>' +
+        '<p class="step__subtitle">Get your personalized price range instantly, plus a $100 gift card toward your first treatment.</p>' +
         '<form class="step__form" id="contactForm" onsubmit="return false;">' +
         '<div class="form-group">' +
         '<label class="form-label" for="name">Full Name <span class="required">*</span></label>' +
@@ -1129,7 +1165,7 @@
         '<div class="form-group form-group--checkbox">' +
         '<label class="checkbox-label">' +
         '<input type="checkbox" id="consent" class="checkbox-input" ' + consentChecked + ' required />' +
-        '<span class="checkbox-text">I consent to receive my estimate and consultation details via email and SMS. I can unsubscribe anytime. <span class="required">*</span></span>' +
+        '<span class="checkbox-text">I agree to be contacted about my SMP estimate and consultation. I can opt out anytime. <span class="required">*</span></span>' +
         '</label></div></form>' +
         '<div class="step__gift-card-banner">' +
         '<div class="gift-card-icon">🎁</div>' +
@@ -1180,8 +1216,8 @@
         '<div class="result-panel__gift-card">' +
         '<div class="gift-card-icon">🎁</div>' +
         '<div class="gift-card-content">' +
-        '<h4 class="gift-card-title">$100 Gift Card Reserved!</h4>' +
-        '<p class="gift-card-text">We' + String.fromCharCode(39) + 've sent your detailed estimate and $100 consultation gift card to your email. Book within 30 days to redeem.</p>' +
+        '<h4 class="gift-card-title">$100 Gift Card Unlocked!</h4>' +
+        '<p class="gift-card-text">Book your free consultation within 30 days to receive $100 off your SMP treatment. Limited time offer!</p>' +
         '</div></div>' +
         '<div class="result-panel__cta">' +
         '<a href="https://calendly.com/stellasinkchamber/30min" class="btn btn--primary btn--large" target="_blank" rel="noopener">Book Free Consultation</a>' +
@@ -1191,9 +1227,9 @@
         '<div class="result-panel__next-steps">' +
         '<h3 class="next-steps__title">What happens next?</h3>' +
         '<ol class="next-steps__list">' +
-        '<li>Check your email for your full estimate breakdown</li>' +
-        '<li>Book your free, no-pressure consultation</li>' +
+        '<li>Book your free, no-pressure consultation using the button above</li>' +
         '<li>We' + String.fromCharCode(39) + 'll assess your scalp and finalize your custom treatment plan</li>' +
+        '<li>Receive your $100 gift card discount when you book within 30 days</li>' +
         '<li>Schedule your first session at a time that works for you</li>' +
         '</ol></div></div>';
     }
@@ -1415,5 +1451,120 @@
   window.quizComplete = quizComplete;
 })();
 </script>
+
+<!-- SIC BACK SCRIPT START -->
+<script>
+(function(){
+  var back = document.getElementById('sic-back');
+  if (!back) return;
+  // Prefer history back if same-origin pricing referrer or explicit src=pricing
+  var fromPricing = /stellasinkchamber\.com\/pricing/.test(document.referrer) || /[?&]src=pricing\b/.test(location.search);
+  back.addEventListener('click', function(e){
+    if (fromPricing && window.history.length > 1) {
+      e.preventDefault();
+      window.history.back();
+    } // else: fall back to href="/pricing"
+  });
+})();
+</script>
+<!-- SIC BACK SCRIPT END -->
+
+<!-- SIC CALENDLY PREFILL START -->
+<script>
+(function(){
+  var BOOK_ID = 'sic-book';
+  var AUTO_REDIRECT = /[?&]autobook=1\b/.test(location.search); // set ?autobook=1 to auto-go to Calendly
+  var PRICING_SRC = /[?&]src=pricing\b/.test(location.search);
+
+  function $(sel, root){ return (root||document).querySelector(sel); }
+  function val(el){ return (el && 'value' in el) ? String(el.value||'').trim() : ''; }
+
+  function buildCalendlyURL(obj){
+    var u = new URL('https://calendly.com/stellasinkchamber/30min');
+    if (obj.firstName) u.searchParams.set('first_name', obj.firstName);
+    if (obj.lastName)  u.searchParams.set('last_name',  obj.lastName);
+    if (obj.email)     u.searchParams.set('email',      obj.email);
+    if (obj.phone)     u.searchParams.set('a1',         obj.phone); // custom Q "Phone"
+    if (PRICING_SRC)   u.searchParams.set('utm_source','pricing_modal');
+    return u.toString();
+  }
+
+  function updateBookLink(d){
+    var a = document.getElementById(BOOK_ID);
+    if (!a) return;
+    a.setAttribute('href', buildCalendlyURL(d));
+  }
+
+  // Try to find final-step fields - using actual field IDs from this calculator
+  function getFieldCandidates(){
+    var nameField = $('#name');
+    var emailField = $('#email');
+    var phoneField = $('#phone');
+
+    // Parse full name into first/last
+    var fullName = val(nameField);
+    var nameParts = fullName.split(/\s+/);
+    var firstName = nameParts[0] || '';
+    var lastName = nameParts.slice(1).join(' ') || '';
+
+    return {
+      firstName: firstName,
+      lastName: lastName,
+      email: val(emailField),
+      phone: val(phoneField)
+    };
+  }
+
+  function captureAndMaybeRedirect(){
+    var data = getFieldCandidates();
+    // Update Book button immediately
+    updateBookLink(data);
+    if (AUTO_REDIRECT) {
+      // Only redirect if we have at least name + email
+      if (data.firstName && data.email){
+        location.href = buildCalendlyURL(data);
+      }
+    }
+  }
+
+  // Strategy: Monitor for when the final form fields appear and wire them
+  var tried = false;
+  var checkInterval = setInterval(function(){
+    if (tried) return;
+    var nameField = $('#name');
+    var emailField = $('#email');
+    var phoneField = $('#phone');
+
+    if (nameField && emailField && phoneField){
+      // Wire input events to keep #sic-book live-updated as user types
+      [nameField, emailField, phoneField].forEach(function(el){
+        if (!el) return;
+        el.addEventListener('input', function(){
+          updateBookLink(getFieldCandidates());
+        });
+        el.addEventListener('blur', function(){
+          updateBookLink(getFieldCandidates());
+        });
+      });
+
+      // Also capture on the Next button click for step 7
+      var nextBtn = document.getElementById('nextBtn');
+      if (nextBtn){
+        nextBtn.addEventListener('click', function(){
+          // Small delay to ensure state is captured
+          setTimeout(captureAndMaybeRedirect, 100);
+        });
+      }
+
+      tried = true;
+      clearInterval(checkInterval);
+    }
+  }, 500);
+
+  // On load, set default book link (no prefill)
+  updateBookLink({ firstName:'', lastName:'', email:'', phone:'' });
+})();
+</script>
+<!-- SIC CALENDLY PREFILL END -->
 </body>
 </html>
